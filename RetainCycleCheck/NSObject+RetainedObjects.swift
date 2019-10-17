@@ -1,0 +1,107 @@
+//
+//  NSObject+RetainedObjects.swift
+//  RetainCycleCheck
+//
+//  Created by 翟泉 on 2019/10/18.
+//  Copyright © 2019 cezres. All rights reserved.
+//
+
+import Foundation
+
+public extension NSObject {
+    /// 返回发生循环引用的引用栈数组
+    func retainCycles() -> [[NSObject]] {
+        var list = [[NSObject]]()
+        retainCycles(stack: [self], stackList: &list)
+        return list
+    }
+
+    /// 遍历当前对象直接和间接强引用的对象
+    /// - Parameter stack: 当前遍历的引用栈
+    /// - Parameter stackList: 保存发生循环引用的引用栈数组
+    func retainCycles(stack: [NSObject], stackList: inout [[NSObject]]) {
+        for item in retainedObjects() {
+            if stack[0] == item {
+                stackList.append(stack)
+            } else if stack.contains(item) {
+                continue
+            } else {
+                item.retainCycles(stack: stack + [item], stackList: &stackList)
+            }
+        }
+    }
+
+    /// 返回当前对象强引用的对象
+    func retainedObjects() -> [NSObject] {
+        var result = [NSObject]()
+
+        // Instance ivar
+        NSObject.strongReferencedIvars(for: classForCoder).compactMap {
+            ivar_getName($0)
+        }.map {
+            String(cString: $0)
+        }.compactMap {
+            value(forKey: $0) as? NSObject
+        }.forEach {
+            result.append($0)
+        }
+
+        // TODO: Associated object
+        // TODO: Block
+        // TODO: Struct
+
+        return result
+    }
+}
+
+extension NSObject {
+    /// 返回类强引用的实例变量
+    static func strongReferencedIvars(for cls: AnyClass) -> [Ivar] {
+        var ivars = [Ivar]()
+
+        #warning("使用Swift实现的类继承与NSObject调用class_getIvarLayout也会返回NULL，也就是无法确定实例变量是不是强引用")
+        guard let ivarLayout = class_getIvarLayout(cls) else { return [] }
+
+        var ivarCount: UInt32 = 0
+        let ivarList = class_copyIvarList(cls, &ivarCount)
+
+        var minimumIvarIndex = 1
+        if ivarCount > 0 {
+            minimumIvarIndex = ivar_getOffset(ivarList![0]) / MemoryLayout<Int>.size
+        }
+
+        let parsedLayout = layoutAsIndexes(forDescription: ivarLayout, minimumIvarIndex: minimumIvarIndex)
+
+        for index in 0..<ivarCount {
+            guard let ivar = ivarList?[Int(index)] else { break }
+            let ivarLayoutIndex = ivar_getOffset(ivar) / MemoryLayout<Int>.size
+            if parsedLayout.contains(ivarLayoutIndex) {
+                ivars.append(ivar)
+            }
+        }
+        free(ivarList)
+
+        return ivars
+    }
+
+    static func layoutAsIndexes(forDescription ivarLayout: UnsafePointer<UInt8>, minimumIvarIndex: Int) -> NSIndexSet {
+        let indexs = NSMutableIndexSet()
+        var currentIndex = minimumIvarIndex
+
+        var offset = 0
+        while ivarLayout[offset] != 0x00 {
+            let upperNibble = Int((ivarLayout[offset] & 0xf0) >> 4)
+            let lowerNibble = Int(ivarLayout[offset] & 0xf)
+
+            currentIndex += upperNibble
+            indexs.add(in: NSMakeRange(currentIndex, lowerNibble))
+            currentIndex += lowerNibble
+
+            offset += 1
+        }
+
+        return indexs
+    }
+}
+
+

@@ -1,14 +1,15 @@
 //
-//  MemoryLeakCheckTests.swift
-//  MemoryLeakCheckTests
+//  RetainCycleCheckTests.swift
+//  RetainCycleCheckTests
 //
-//  Created by 翟泉 on 2019/10/17.
+//  Created by 翟泉 on 2019/10/18.
 //  Copyright © 2019 cezres. All rights reserved.
 //
 
 import XCTest
+@testable import RetainCycleCheck
 
-class MemoryLeakCheckTests: XCTestCase {
+class RetainCycleCheckTests: XCTestCase {
 
     override func setUp() {
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -21,6 +22,7 @@ class MemoryLeakCheckTests: XCTestCase {
     func testExample() {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
+
     }
 
     func testPerformanceExample() {

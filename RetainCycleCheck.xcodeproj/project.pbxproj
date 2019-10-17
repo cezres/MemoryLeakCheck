@@ -11,6 +11,7 @@
 		D582B9072358E6B600680986 /* RetainCycleCheckTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D582B9062358E6B600680986 /* RetainCycleCheckTests.swift */; };
 		D582B9092358E6B600680986 /* RetainCycleCheck.h in Headers */ = {isa = PBXBuildFile; fileRef = D582B8FB2358E6B600680986 /* RetainCycleCheck.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D582B9132358E73100680986 /* NSObject+RetainedObjects.swift in Sources */ = {isa = PBXBuildFile; fileRef = D582B9122358E73100680986 /* NSObject+RetainedObjects.swift */; };
+		D582B9172358E77E00680986 /* OCClass.m in Sources */ = {isa = PBXBuildFile; fileRef = D582B9162358E77E00680986 /* OCClass.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -31,6 +32,9 @@
 		D582B9062358E6B600680986 /* RetainCycleCheckTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RetainCycleCheckTests.swift; sourceTree = "<group>"; };
 		D582B9082358E6B600680986 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D582B9122358E73100680986 /* NSObject+RetainedObjects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSObject+RetainedObjects.swift"; sourceTree = "<group>"; };
+		D582B9142358E77E00680986 /* RetainCycleCheckTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RetainCycleCheckTests-Bridging-Header.h"; sourceTree = "<group>"; };
+		D582B9152358E77E00680986 /* OCClass.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OCClass.h; sourceTree = "<group>"; };
+		D582B9162358E77E00680986 /* OCClass.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OCClass.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,6 +89,9 @@
 			children = (
 				D582B9062358E6B600680986 /* RetainCycleCheckTests.swift */,
 				D582B9082358E6B600680986 /* Info.plist */,
+				D582B9152358E77E00680986 /* OCClass.h */,
+				D582B9162358E77E00680986 /* OCClass.m */,
+				D582B9142358E77E00680986 /* RetainCycleCheckTests-Bridging-Header.h */,
 			);
 			path = RetainCycleCheckTests;
 			sourceTree = "<group>";
@@ -208,6 +215,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D582B9172358E77E00680986 /* OCClass.m in Sources */,
 				D582B9072358E6B600680986 /* RetainCycleCheckTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -409,7 +417,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.cezres.RetainCycleCheckTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "RetainCycleCheckTests/RetainCycleCheckTests-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -431,7 +439,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.cezres.RetainCycleCheckTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "RetainCycleCheckTests/RetainCycleCheckTests-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

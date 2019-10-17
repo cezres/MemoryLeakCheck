@@ -31,12 +31,12 @@ class RetainCycleCheckTests: XCTestCase {
         obj3.strongValue1 = obj1
 
         var retainCycles = obj1.retainCycles()
+        print(retainCycles)
         XCTAssertEqual(retainCycles.count, 1)   // obj1 在一个引用循环中，引用顺序是 [[1, 2, 3]]
-        XCTAssertEqual(retainCycles[0].last, obj3)
 
         retainCycles = obj3.retainCycles()
+        print(retainCycles)
         XCTAssertEqual(retainCycles.count, 1)   // obj3 在一个引用循环中，引用顺序是 [[3, 2, 1]]
-        XCTAssertEqual(retainCycles[0].last, obj2)
     }
 
     func testRetainCyclesCase2() {
@@ -75,12 +75,15 @@ class RetainCycleCheckTests: XCTestCase {
         obj3.strongValue3 = obj3
 
         var retainCycles = obj1.retainCycles()
+        print(retainCycles)
         XCTAssertEqual(retainCycles.count, 2)   // obj1 在两个引用循环中，引用顺序是 [[1, 2], [1, 3, 2]]
 
         retainCycles = obj2.retainCycles()  // obj2 在两个引用循环中，引用顺序是 [[2, 1], [2, 1, 3]]
+        print(retainCycles)
         XCTAssertEqual(retainCycles.count, 2)
 
         retainCycles = obj3.retainCycles()  // obj3 在两个引用循环中，引用顺序是 [[3, 2, 1], [3]]
+        print(retainCycles)
         XCTAssertEqual(retainCycles.count, 2)
     }
 

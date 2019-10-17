@@ -10,23 +10,23 @@ import Foundation
 
 public extension NSObject {
     /// 返回发生循环引用的引用栈数组
-    func retainCycles() -> [[NSObject]] {
-        var list = [[NSObject]]()
-        retainCycles(stack: [self], stackList: &list)
+    func retainCycles() -> [RetainStack] {
+        var list = [RetainStack]()
+        retainCycles(stack: RetainStack(objects: [self]), stackList: &list)
         return list
     }
 
     /// 遍历当前对象直接和间接强引用的对象
     /// - Parameter stack: 当前遍历的引用栈
     /// - Parameter stackList: 保存发生循环引用的引用栈数组
-    func retainCycles(stack: [NSObject], stackList: inout [[NSObject]]) {
-        for item in retainedObjects() {
-            if stack[0] == item {
+    private func retainCycles(stack: RetainStack, stackList: inout [RetainStack]) {
+        for object in retainedObjects() {
+            if stack[0] == object {
                 stackList.append(stack)
-            } else if stack.contains(item) {
+            } else if stack.contains(object) {
                 continue
             } else {
-                item.retainCycles(stack: stack + [item], stackList: &stackList)
+                object.retainCycles(stack: stack + object, stackList: &stackList)
             }
         }
     }
@@ -49,6 +49,7 @@ public extension NSObject {
         // TODO: Associated object
         // TODO: Block
         // TODO: Struct
+        // TODO: Cache
 
         return result
     }
@@ -59,7 +60,7 @@ extension NSObject {
     static func strongReferencedIvars(for cls: AnyClass) -> [Ivar] {
         var ivars = [Ivar]()
 
-        #warning("使用Swift实现的类继承与NSObject调用class_getIvarLayout也会返回NULL，也就是无法确定实例变量是不是强引用")
+        #warning("使用Swift实现的类继承与NSObject调用class_getIvarLayout也会返回NULL，也就是无法通过这个方式确定Swift实现的类的实例变量是不是强引用")
         guard let ivarLayout = class_getIvarLayout(cls) else { return [] }
 
         var ivarCount: UInt32 = 0
@@ -81,6 +82,9 @@ extension NSObject {
         }
         free(ivarList)
 
+        if let superClass = class_getSuperclass(cls), superClass != cls {
+            ivars.append(contentsOf: strongReferencedIvars(for: superClass))
+        }
         return ivars
     }
 
@@ -104,4 +108,53 @@ extension NSObject {
     }
 }
 
+public extension NSObject {
+    struct RetainStack: CustomStringConvertible {
+        private var retainList = [NSObject]()
+        private var retainSet = Set<NSObject>()
 
+        init(objects: [NSObject]) {
+            retainList = objects
+            retainSet.formIntersection(objects)
+        }
+
+        mutating func append(_ element: NSObject) {
+            retainSet.insert(element)
+            retainList.append(element)
+        }
+
+        func contains(_ element: NSObject) -> Bool {
+            return retainSet.contains(element)
+        }
+
+        subscript(index: Int) -> NSObject {
+            return retainList[index]
+        }
+
+        public static func +(lhs: RetainStack, rhs: NSObject) -> RetainStack {
+            var stack = lhs
+            stack.append(rhs)
+            return stack
+        }
+
+        /**
+         |-> 0x7ff72ad15b00-1
+         |     |- 0x7ff72ad15b90-2
+         |        |- 0x7ff72ad15bd0-3
+         ^-----------|
+         */
+        public var description: String {
+            var text = "\n|-> "
+            var offset = text.count
+            text += "\(retainList[0].description)\n"
+            for index in 1..<retainList.count {
+                text += "|"
+                text += String(repeating: " ", count: offset)
+                text += "|- \(retainList[index].description)\n"
+                offset += 3
+            }
+            text += "^\(String(repeating: "-", count: offset))|\n"
+            return text
+        }
+    }
+}
